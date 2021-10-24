@@ -58,4 +58,3 @@ $ docker compose stop
 * There is zero security for the credentials that keycloak uses to connect to postgres and they cannot currently be overridden unless you edit `pg-init.d/init-db-keycloak.sh` as well as `docker-compose.yml`
 * Be super-sure when editing on Windows that the line endings of the shell scripts mounted from keycloak-init.d and pg-init.d have LF line-endings.
 * Unless you are running on Linux, the directory from which we mount the init.d scripts as well as the persisted directories must be mountable by Docker. You can configure that in the docker UI.
-
