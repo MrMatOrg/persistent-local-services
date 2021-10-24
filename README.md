@@ -13,11 +13,13 @@ This currently spins up the following via docker-compose. Docker-desktop is cons
 
 ## How to use this
 
+### Start with default configuration
+
 0. You need something that knows how to deal with Docker compose files (e.g. Docker Desktop, but podman should also work)
 
 1. Clone this repository somewhere
 
-2. Navigate to the directory containing docker-compose.yml and start services with their default configuration:
+2. Navigate to the directory containing docker-compose.yml and start services with their default configuration. If you feel confident, you can add `-d` at the end to start in detached mode. Otherwise hit Ctrl-C to exit the services running in the foreground.
 
 ```shell
 $ docker compose up
@@ -42,8 +44,17 @@ To then execute with your local configuration overrides:
 $ docker compose --env-file /path/to/local.env up
 ```
 
+### Starting and Stopping
+
+```shell
+$ docker compose start
+$ docker compose stop
+```
+
 ## How to hack this
 
 * There's little to no security. Don't expect there to be any.
 * docker-compose will start keycloak right after postgres is started, even though postgres must still configure a schema and role for it. There's a clever little script checking whether port 5432 is responsive from the perspective of the keycloak container image and it will sleep if it is not.
 * There is zero security for the credentials that keycloak uses to connect to postgres and they cannot currently be overridden unless you edit `pg-init.d/init-db-keycloak.sh` as well as `docker-compose.yml`
+* Be super-sure when editing on Windows that the line endings of the shell scripts mounted from keycloak-init.d and pg-init.d have LF line-endings.
+* Unless you are running on Linux, the directory from which we mount the init.d scripts as well as the persisted directories must be mountable by Docker. You can configure that in the docker UI.
