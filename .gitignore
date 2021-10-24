@@ -2,3 +2,4 @@
 # Ignore locally persisted data
 
 data/
+/local.env

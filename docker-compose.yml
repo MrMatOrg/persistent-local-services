@@ -1,0 +1,53 @@
+version: "3.9"
+
+networks:
+  infra:
+    name: infra
+
+services:
+  pg:
+    build:
+      context: .
+    image: postgres:14.0-alpine
+    container_name: pg
+    networks:
+    - infra
+    ports:
+    - "127.0.0.1:5432:5432"
+    volumes:
+    - ./pg-init.d:/docker-entrypoint-initdb.d:ro
+    - "${INFRA_PERSISTENCE_DB:-./data/db}:/var/lib/postgresql/data/pgdata"
+    environment:
+      POSTGRES_DB: "${INFRA_DB_NAME:-localdb}"
+      POSTGRES_PASSWORD: "${INFRA_DB_PASSWORD:-foobar}"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  keycloak:
+    build:
+      context: .
+    image: jboss/keycloak:15.0.1
+    container_name: keycloak
+    networks:
+    - infra
+    ports:
+    - "127.0.0.1:8080:8080"
+    volumes:
+    - ./keycloak-init.d:/opt/jboss/startup-scripts:ro
+    - "${INFRA_PERSISTENCE_KEYCLOAK:-./data/keycloak}:/import"
+    environment:
+      KEYCLOAK_USER: "${INFRA_KEYCLOAK_USER:-admin}"
+      KEYCLOAK_PASSWORD: "${INFRA_KEYCLOAK_PASSWORD:-foobar}"
+      # If you wish to import a previously exported Keycloak realm
+      #KEYCLOAK_IMPORT: /import/harkonnen-local.json
+      DB_VENDOR: postgres
+      DB_ADDR: pg
+      DB_DATABASE: "${INFRA_DB_NAME:-localdb}"
+      DB_USER: keycloak
+      DB_PASSWORD: keycloak
+    depends_on:
+    - pg

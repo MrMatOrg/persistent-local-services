@@ -17,56 +17,33 @@ This currently spins up the following via docker-compose. Docker-desktop is cons
 
 1. Clone this repository somewhere
 
-2. Start locally persistent infrastructure with default locations. Choices:
-
-In Bash:
+2. Navigate to the directory containing docker-compose.yml and start services with their default configuration:
 
 ```shell
-$ ./up.sh
-```
-
-In Powershell:
-
-```powershell
-PS > ./up.ps1
-```
-
-Directly:
-
-```shell
-$ INFRA_BASE=/where/persistent-local-services.yml/is/located
-$ COMPOSE_FILE="${INFRA_BASE}/persistent-local-services.yml" docker compose up
+$ docker compose up
 ```
 
 ### Configuration
 
+You can create an .env file and point docker compose to it via its `--env-file` option. This will override the following variables. For your convenience, `local.env` is explicitly git-ignored so you can simply do a git pull to update.
+
 | Environment Variable | Default | Description |
 |----------------------|---------|-------------|
-| INFRA_BASE           | None    | Set by wrappers to the directory in which they reside. This is taken as the base for the bind mounts |
-| INFRA_PERSISTENCE_DB | $INFRA_BASE/db | Persistence directory for the database |
-| INFRA_PERSISTENCE_KEYCLOAK | $INFRA_BASE/keycloak | Persistence directory for Auth/z/n. Keycloak is configured to store its data in the database. This directory is only used for importing/exporting realm configurations |
+| INFRA_PERSISTENCE_DB | ./data/db | Persistence directory for the database |
+| INFRA_PERSISTENCE_KEYCLOAK | ./data/keycloak | Persistence directory for Auth/z/n. Keycloak is configured to store its data in the database. This directory is only used for importing/exporting realm configurations |
 | INFRA_DB_NAME        | localdb | Name of the PostgreSQL database to spin up |
 | INFRA_DB_PASSWORD    | foobar  | Password for the postgres user |
 | INFRA_KEYCLOAK_USER  | keycloak | Admin user for Keycloak |
 | INFRA_KEYCLOAK_PASSWORD | foobar | Password for the keycloak user |
 
-The `up.[sh|ps1]` scripts will use your own defaults from `~\etc\persistent-local-services.ps1` if that file exists. Place your configuration into this file like this:
+To then execute with your local configuration overrides:
 
 ```shell
-INFRA_PERSISTENCE_DB="/opt/dyn/data/pg"
-INFRA_PERSISTENCE_KEYCLOAK="/opt/dyn/data/keycloak"
-INFRA_DB_NAME="harkdb"
-export INFRA_PERSISTENCE_DB INFRA_PERSISTENCE_KEYCLOAK INFRA_DB_NAME
-```
-
-```powershell
-$Env:INFRA_PERSISTENCE_DB = "d:\data\pg"
-$Env:INFRA_PERSISTENCE_KEYCLOAK = "d:\data\keycloak"
-$Env:INFRA_DB_NAME = "harkdb"
+$ docker compose --env-file /path/to/local.env up
 ```
 
 ## How to hack this
 
 * There's little to no security. Don't expect there to be any.
 * docker-compose will start keycloak right after postgres is started, even though postgres must still configure a schema and role for it. There's a clever little script checking whether port 5432 is responsive from the perspective of the keycloak container image and it will sleep if it is not.
-* There is zero security for the credentials that keycloak uses to connect to postgres and they cannot currently be overridden unless you edit `pg-init.d/init-db-keycloak.sh` as well as `persistent-local-services.yml`
+* There is zero security for the credentials that keycloak uses to connect to postgres and they cannot currently be overridden unless you edit `pg-init.d/init-db-keycloak.sh` as well as `docker-compose.yml`
