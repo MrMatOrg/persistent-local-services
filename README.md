@@ -50,6 +50,14 @@ $ COMPOSE_FILE="${INFRA_BASE}/persistent-local-infra.yml" docker compose up
 | INFRA_KEYCLOAK_USER  | keycloak | Admin user for Keycloak |
 | INFRA_KEYCLOAK_PASSWORD | foobar | Password for the keycloak user |
 
+The `up.ps1` script will use your own defaults from `${Env:USERPROFILE}\etc\persistent-local-services.ps1` if that file exists. Place your configuration into this file like this:
+
+```powershell
+$Env:INFRA_PERSISTENCE_DB = "d:\data\pg"
+$Env:INFRA_PERSISTENCE_KEYCLOAK = "d:\data\keycloak"
+$Env:INFRA_DB_NAME = "harkdb"
+```
+
 ## How to hack this
 
 * There's little to no security. Don't expect there to be any.

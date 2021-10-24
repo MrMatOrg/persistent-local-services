@@ -2,10 +2,26 @@
 # Create local, persistent infrastructure
 
 #
-# Figure out the base directory in which the bind mounts need to happen is. 
+# Set some defaults
+
+$LocalConfiguration = "${Env:USERPROFILE}\etc\persistent-local-services.ps1"
 
 $Env:INFRA_BASE=$PSScriptRoot
 $Env:COMPOSE_FILE="${Env:INFRA_BASE}/persistent-local-infra.yml"
 $Env:INFRA_PERSISTENCE_DB="${Env:INFRA_BASE}/data/db"
 $Env:INFRA_PERSISTENCE_KEYCLOAK="${Env:INFRA_BASE}/data/keycloak"
-docker compose up
+
+#
+# See if we have a local override
+
+if (Test-Path -Path $LocalConfiguration -PathType Leaf) {
+    Write-Host "Configuring from ${LocalConfiguration}"
+    . $LocalConfiguration
+} else {
+    Write-Host "Using default configuration"
+}
+
+#
+# Start up
+
+docker compose up -d
