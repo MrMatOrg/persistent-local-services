@@ -1,0 +1,4 @@
+#
+# Ignore locally persisted data
+
+data/
