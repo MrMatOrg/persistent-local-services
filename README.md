@@ -51,6 +51,10 @@ $ docker compose start
 $ docker compose stop
 ```
 
+## Troubleshooting
+
+* If deployment is cancelled or fails for the pg container before it has completed initialising then the quickest fix is to delete the database directory that was created, then rm the containers and start deployment again.
+
 ## How to hack this
 
 * There's little to no security. Don't expect there to be any.
